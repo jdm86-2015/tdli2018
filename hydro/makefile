@@ -10,6 +10,7 @@ SRCFILES := ./src/boundary.f90 \
 			./src/conservedVars.f90 \
 			./src/eos.f90 \
 			./src/primatives.f90 \
+			./src/reconstructor.f90 \
 			./src/riemann.f90
 
 # specify the objects

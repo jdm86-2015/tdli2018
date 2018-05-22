@@ -1,16 +1,11 @@
 program hello
     implicit none
-    integer i
-    real, dimension(3) :: A
-    real, dimension(3) :: B
-    real, dimension(3) :: q
 
-    A = (/ 1, 2, 3 /)
-    B = (/ 0, 2, 7 /)
+    real :: A
+    real :: B
 
-    q = max(A,B)
+    A = 1.0
+    B = 1.0
 
-    do i=1,3
-        print*,q(i)
-    end do
+    print*, min(A,B)
 end program hello

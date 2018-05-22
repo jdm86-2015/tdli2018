@@ -3,20 +3,29 @@ program test
     use conservedVars, only:cons_calc
     use boundary, only:boundaries
     use equationOfState, only:eos
+    use reconstructor, only:reconstruct
+    use riemann, only:riemannSolver
     implicit none
     integer, parameter :: uDim = 7
     integer, parameter :: xDim = 3
     integer, parameter :: uCDim = 5
     integer :: testFlag
 
-    real, dimension(uDim,-1:xDim+2)  :: uPrim
+    real, dimension(uDim,-1:xDim+2) :: uPrim
+    real, dimension(uDim,-1:xDim+2) :: uEdgeL
+    real, dimension(uDim,-1:xDim+2) :: uEdgeR
+
     real, dimension(uCDim,-1:xDim+2) :: uCons
+    real, dimension(uCDim,-1:xDim+2) :: uFlux
+
     real :: dummy
 
     real, parameter :: gam = 5.0/3.0
 
     print*,'Test program running...'
 
+
+    ! ********************** CONSERVED TEST ********************** 
     testFlag = 0
     uPrim(:,:) = 0.0
     uCons(:,:) = 0.0
@@ -35,6 +44,8 @@ program test
         print*,'Conserved quantity calculation failed.'
     end if
 
+    ! ********************** PRIMATIVE TEST ********************** 
+
     print*,'Testing primative quantity calculation....'
     uPrim(:,:) = 0.0
     call prim_calc(uPrim,uCons,uDim,xDim)
@@ -44,6 +55,8 @@ program test
         print*,'Primative quantity calculation failed.'
     end if
 
+    ! ********************** BOUNDARY TEST ********************** 
+
     print*,'Testing boundary implementation....'
     call boundaries(uPrim,uCons,uDim,xDim,1)
     if(abs(uPrim(5,-1)-uPrim(5,xDim-1)) < 1.0e-14) then
@@ -52,6 +65,7 @@ program test
         print*,'Boundary implementation failed.'
     end if
 
+    ! ********************** EOS TEST ********************** 
     dummy = (gam - 1.0)*1.5*0.5
     print*,'Testing equation of state....'
     call eos(uPrim,gam,uDim,xDim)
@@ -59,6 +73,71 @@ program test
         print*,'OK'
     else    
         print*,'Equation of state calculation failed'
+    end if
+
+    ! ********************** RECONSTRUCTOR TEST ********************** 
+
+    testFlag = 0
+    uPrim(:,:) = 0.0
+    uCons(:,:) = 0.0
+    uEdgeL(:,:) = 0.0
+    uEdgeR(:,:) = 0.0
+
+    uPrim(1,1:3) = (/ 2.0, 4.0, 6.0 /)
+
+    print*,'Testing reconstructor....'
+    call boundaries(uPrim,uCons,uDim,xDim,1)
+    call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
+
+    dummy = 5
+    ! print*,uPrim(1,:)
+    ! print*,uEdgeR(1,:)
+    ! print*,uEdgeL(1,:)
+    if(abs(uEdgeR(1,2) - dummy) < 1.0e-14) then
+        print*,'Right Edge OK'
+    else    
+        print*,'Right edge calculation failed'
+    end if
+    dummy = 3
+    if(abs(uEdgeL(1,2) - dummy) < 1.0e-14) then
+        print*,'Left Edge OK'
+    else    
+        print*,'Left edge calculation failed'
+    end if
+
+    ! ********************** RIEMANN SOLVER TEST ********************** 
+
+    testFlag = 0
+    uPrim(:,:) = 0.0
+    uCons(:,:) = 0.0
+    uFlux(:,:) = 0.0
+
+    uEdgeL(:,:) = 0.0
+    uEdgeR(:,:) = 0.0
+
+    uPrim(1,1:3) = (/ 3.0, 3.0, 3.0 /)
+    uPrim(2,1:3) = (/ 0.0, 0.0, 0.0 /)
+    uPrim(5,1:3) = (/ 0.1, 0.1, 0.1 /)
+    uPrim(6,1:3) = (/ 0.9, 0.9, 0.9 /)
+    uPrim(7,1:3) = (/ 7.0, 7.0, 7.0 /)
+    print*,'Testing Riemann Solver with constant input....'
+    call boundaries(uPrim,uCons,uDim,xDim,1)
+    ! call eos(uPrim,gam,uDim,xDim)
+    call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
+    call riemannSolver(uPrim,uFlux,uDim,xDim)
+
+    print*,uPrim(1,:)
+    print*,uEdgeR(1,:)
+    print*,uEdgeL(1,:)
+    print*,uFlux(1,:)
+    print*,uFlux(2,:)
+    print*,uFlux(5,:)
+
+    dummy = 7.0
+    if(abs(uFlux(1,2) - dummy) < 1.0e-14) then
+        print*,'OK'
+    else    
+        print*,'Riemann Fluxes failed'
     end if
 
 end program test
