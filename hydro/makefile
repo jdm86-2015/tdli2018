@@ -4,7 +4,7 @@ CXX = gfortran
 INC = -I./include
 WARNINGS = -Wall
 OTHER = -DPPT
-CXXFLAGS = -O3 $(WARNINGS) $(OTHER) #-lhdf5 -lhdf5_fortran
+CXXFLAGS = -O3 $(WARNINGS) $(OTHER) #-MMD -MP #-lhdf5 -lhdf5_fortran
 
 SRCFILES := ./src/boundary.f90 \
 			./src/conservedVars.f90 \
@@ -16,7 +16,7 @@ SRCFILES := ./src/boundary.f90 \
 OBJFILES := $(patsubst %.f90,%.o,$(SRCFILES))
 
 # specify the dependencies
-DEPFILES := $(patsubst %.f90,%.d,$(SRCFILES))
+#DEPFILES := $(patsubst %.f90,%.d,$(SRCFILES))
 
 # specify all included files for the distribution
 ALLFILES := $(SRCFILES) "./src/main.f90" "./src/test.f90" makefile
@@ -45,11 +45,11 @@ dist :
 -include $(DEPFILES)
 
 %.o: %.f90 makefile
-	$(CXX) $(CXXFLAGS) -cpp -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -cpp -c $< -o $@
 
 ./src/main.o: ./src/main.f90 makefile
-	$(CXX) $(CXXFLAGS) -cpp -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -cpp -c $< -o $@
 
 ./src/test.o: ./src/test.f90 makefile
-	$(CXX) $(CXXFLAGS) -cpp -MMD -MP -c $< -o $@
+	$(CXX) $(CXXFLAGS) -cpp -c $< -o $@
 
