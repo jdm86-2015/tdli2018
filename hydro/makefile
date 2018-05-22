@@ -4,25 +4,13 @@ CXX = gfortran
 INC = -I./include
 WARNINGS = -Wall
 OTHER = -DPPT
-TEST = "test.f90"
 CXXFLAGS = -O3 $(WARNINGS) $(OTHER) #-lhdf5 -lhdf5_fortran
 
-# specify all files related to the distribution of the code.
-AUXFILES := makefile
-PROJDIRS := "./include" "./src"
-
-# specify executable
-ifdef TEST
-EXE := test
-EFILE := "main.f90"
-SRCFILES := $(shell find $(PROJDIRS) -type f ! -name $(EFILE) -name "*.f90")
-else
-EXE := hydro
-TEST = "test.f90"
-SRCFILES := $(shell find $(PROJDIRS) -type f ! -name $(TEST) -name "*.f90")
-endif
-
-HDRFILES := $(shell find $(PROJDIRS) -type f -name "*.h")
+SRCFILES := ./src/boundary.f90 \
+			./src/conservedVars.f90 \
+			./src/eos.f90 \
+			./src/primatives.f90 \
+			./src/riemann.f90
 
 # specify the objects
 OBJFILES := $(patsubst %.f90,%.o,$(SRCFILES))
@@ -31,17 +19,25 @@ OBJFILES := $(patsubst %.f90,%.o,$(SRCFILES))
 DEPFILES := $(patsubst %.f90,%.d,$(SRCFILES))
 
 # specify all included files for the distribution
-ALLFILES := $(SRCFILES) $(HDRFILES) $(AUXFILES) "./src/main.f90" "./src/test.f90"
+ALLFILES := $(SRCFILES) "./src/main.f90" "./src/test.f90" makefile
+ 
+EXE := hydro
+TEST := testScript
 
 .PHONY : all clean
 
 all : $(EXE)
 
-$(EXE) :  $(OBJFILES)
+test : $(TEST)
+
+$(EXE) :  $(OBJFILES) ./src/main.o
+	$(CXX) $(CXXFLAGS) -o $@ $^
+
+$(TEST) : $(OBJFILES) ./src/test.o
 	$(CXX) $(CXXFLAGS) -o $@ $^
 
 clean :
-	$(RM) $(wildcard $(OBJFILES) $(DEPFILES) $(EXE) hydro.tar.gz)
+	$(RM) $(wildcard ./src/*.o *.mod ./src/*.d hydro.tar.gz)
 
 dist :
 	tar czvf hydro.tar.gz $(ALLFILES)
@@ -50,3 +46,10 @@ dist :
 
 %.o: %.f90 makefile
 	$(CXX) $(CXXFLAGS) -cpp -MMD -MP -c $< -o $@
+
+./src/main.o: ./src/main.f90 makefile
+	$(CXX) $(CXXFLAGS) -cpp -MMD -MP -c $< -o $@
+
+./src/test.o: ./src/test.f90 makefile
+	$(CXX) $(CXXFLAGS) -cpp -MMD -MP -c $< -o $@
+
