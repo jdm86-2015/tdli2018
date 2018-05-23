@@ -29,7 +29,7 @@ module riemann
             ! Begin Analysis
 
             ! Interpolate the value of the primary variables at cell edges.
-            call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
+            call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,-1)
 
             ! get the squared velocities
             vSqrR = uEdgeR(2,:)*uEdgeR(2,:) + uEdgeR(3,:)*uEdgeR(3,:) + uEdgeR(4,:)*uEdgeR(4,:)

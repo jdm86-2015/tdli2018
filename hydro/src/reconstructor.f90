@@ -52,30 +52,9 @@ module reconstructor
                     uEdgeL(:,xDim+2) = uEdgeL(:,2)
                     uEdgeR(:,xDim+2) = uEdgeR(:,2)
                 case default
-                    ! Linear reconstruction
-                    do i = 1,xDim
-                        sL(:) = (uPrim(:,i) - uPrim(:,i-1))
-                        sR(:) = (uPrim(:,i+1) - uPrim(:,i))
-                        do j = 1,uDim
-                            if ((sL(j) > 0.0) .AND. (sR(j) > 0.0)) then
-                                dUdX = min(abs(sL(j)),abs(sR(j)))
-                            else if ((sL(j) < 0.0) .AND. (sR(j) < 0.0)) then
-                                dUdX = -min(abs(sL(j)),abs(sR(j)))
-                            else
-                                dUdX = 0.0
-                            end if
-                            uEdgeL(j,i) = uPrim(j,i) - 0.5*dUdX
-                            uEdgeR(j,i) = uPrim(j,i) + 0.5*dUdX
-                        end do
-                    uEdgeL(:,-1) = uEdgeL(:,xDim-1)
-                    uEdgeR(:,-1) = uEdgeR(:,xDim-1)
-                    uEdgeL(:,0) = uEdgeL(:,xDim)
-                    uEdgeR(:,0) = uEdgeR(:,xDim)
-                    uEdgeL(:,xDim+1) = uEdgeL(:,1)
-                    uEdgeR(:,xDim+1) = uEdgeR(:,1)
-                    uEdgeL(:,xDim+2) = uEdgeL(:,2)
-                    uEdgeR(:,xDim+2) = uEdgeR(:,2)
-                    end do
+                    ! No reconstruction at all.
+                    uEdgeL = uPrim
+                    uEdgeR = uPrim
             end select
         end subroutine
 end module reconstructor

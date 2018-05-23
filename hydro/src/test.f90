@@ -124,6 +124,43 @@ program test
         print*,'Left edge calculation failed'
     end if
 
+    ! ********************** RECONSTRUCTOR TEST ********************** 
+
+    testFlag = 0
+    uPrim(:,:) = 0.0
+    uCons(:,:) = 0.0
+    uEdgeL(:,:) = 0.0
+    uEdgeR(:,:) = 0.0
+
+    uPrim(1,1:3) = (/ 2.0, 4.0, 6.0 /)
+
+    print*,'Testing reconstructor with no reconstruction enabled....'
+    call boundaries(uPrim,uDim,xDim,1)
+    call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,-1)
+
+    print*,'uPrim(1,:): '
+    print*,uPrim(1,:)
+
+    print*,'uEdgeR(1,:): '
+    print*,uEdgeR(1,:)
+
+    print*,'uEdgeL(1,:): '
+    print*,uEdgeL(1,:)
+
+    dummy = uPrim(1,2)
+    if(abs(uEdgeR(1,2) - dummy) < 1.0e-14) then
+        print*,'Right Edge OK'
+    else    
+        print*,'Right edge calculation failed'
+    end if
+    dummy = uPrim(1,2)
+    if(abs(uEdgeL(1,2) - dummy) < 1.0e-14) then
+        print*,'Left Edge OK'
+    else    
+        print*,'Left edge calculation failed'
+    end if
+
+
     ! ********************** RIEMANN SOLVER TEST ********************** 
 
     testFlag = 0

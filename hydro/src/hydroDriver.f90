@@ -33,7 +33,7 @@ module hydroDriverRoutine
             ! get the x coordinate values and the spacing
             call gridValues(xAxis,xLength,xDim,deltaX)
             ! populate the initial condition
-            call sodIC(uPrim,uDim,xDim,1)
+            call sodIC(uPrim,uDim,xDim,-1)
             ! populate the pressure and sound speed
             call eos(uPrim,5.0/3.0,uDim,xDim)
             ! determine the initial time step
