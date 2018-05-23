@@ -30,6 +30,8 @@ module hydroDriverRoutine
             timeOut = time + outFreq
             stepNumber = 0
 
+            time = 0.0
+
             ! get the x coordinate values and the spacing
             call gridValues(xAxis,xLength,xDim,deltaX)
             ! populate the initial condition
@@ -41,7 +43,7 @@ module hydroDriverRoutine
             print*,deltaT
             call write(uPrim,xAxis,uDim,xDim,stepNumber,time)
 
-            do while ((time < tMax) .OR. deltaT < 1e-10)
+            do while ((stepNumber < 2) .OR. deltaT < 1e-10)
 
                 stepNumber = stepNumber + 1
                 call timeStep(uPrim,uDim,xDim,deltaX,deltaT,safety)

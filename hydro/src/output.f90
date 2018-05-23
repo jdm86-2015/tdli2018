@@ -9,7 +9,7 @@ module output
             real, intent(in), dimension(1:xDim) :: xAxis
             real, intent(in), dimension(uDim,-1:xDim+2) :: uPrim
 
-            real :: time
+            real, intent(in) :: time
   
             integer :: i
             character(len=20) :: filename

@@ -10,14 +10,10 @@ module primatives
             real, intent(inout), dimension(uDim,-1:xDim+2) :: uPrim
             real, intent(in), dimension(uDim-2,-1:xDim+2) :: uCons
 
-            integer :: uCDim
-
             real, dimension(-1:xDim+2) :: vSqr
 
             ! uPrim == (rho, vx, vy, vz, e, p, cs)
             ! uCons == (rho, rho*vx, rho*vy, rho*vz, e+0.5*rho*v^2)
-
-            uCDim = uDim - 2
 
             uPrim(1,:) = uCons(1,:)
             uPrim(2,:) = uCons(2,:)/uCons(1,:)
@@ -26,7 +22,7 @@ module primatives
 
             vSqr = uPrim(2,:)*uPrim(2,:) + uPrim(3,:)*uPrim(3,:) + uPrim(4,:)*uPrim(4,:)
 
-            uPrim(5,:) = uCons(5,:) - 0.5*uPrim(1,:)*vSqr
+            uPrim(5,:) = (uCons(5,:) - 0.5*uPrim(1,:)*vSqr)/uPrim(1,:)
         end subroutine
 end module primatives
 

@@ -4,11 +4,13 @@ module riemann
     contains
         subroutine riemannSolver(uPrim, uFlux, uDim, xDim)
             ! calculates the fluxes at each cell interface.
+            ! fluxes are defined with flux(i) being the left edge of cell i
             integer, intent(in) :: uDim
             integer, intent(in) :: xDim
             integer :: iii
 
             real, intent(in), dimension(uDim,-1:xDim+2) :: uPrim
+
             ! uFlux matches dimension with uCons
             real, intent(out), dimension(uDim-2,-1:xDim+2) :: uFlux
 
@@ -36,10 +38,9 @@ module riemann
             vSqrL = uEdgeL(2,:)*uEdgeL(2,:) + uEdgeL(3,:)*uEdgeL(3,:) + uEdgeL(4,:)*uEdgeL(4,:)
 
             do iii=1,xDim
-                ! calculate the characteristic speeds
+                ! calculate the extreme characteristic speeds
                 lambdaM = min(uEdgeL(2,iii) - uEdgeL(7,iii),uEdgeR(2,iii-1) - uEdgeR(7,iii-1))
                 lambdaP = max(uEdgeL(2,iii) + uEdgeL(7,iii),uEdgeR(2,iii-1) + uEdgeR(7,iii-1))
-                ! print*,lambdaM
                 ! Implement fluxes given by the hydrodynamic equations
                 if (lambdaM > 0) then
                     uFlux(1,iii) = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)
@@ -80,6 +81,13 @@ module riemann
             uFlux(:,0) = uFlux(:,xDim)
             uFlux(:,xDim+1) = uFlux(:,1)
             uFlux(:,xDim+2) = uFlux(:,2)
+
+            print*,'rFlux:'
+            print*,uFlux(1,:)
+            print*,'vFlux:'
+            print*,uFlux(2,:)
+            print*,'eFlux:'
+            print*,uFlux(5,:)
         end subroutine
 end module riemann
         

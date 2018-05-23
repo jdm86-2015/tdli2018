@@ -15,10 +15,12 @@ module sweepFunc
 
             real, intent(in) :: deltaX
 
+            ! ensure boundary conditions for uPrim
             call boundaries(uPrim,uDim,xDim,1)
+            ! calculate the fluxes by solving the riemann problem.
             call riemannSolver(uPrim,uFlux,uDim,xDim)
 
-            ! Should do flux(i + 1) - flux(i)
+            ! Should do flux(i + 1/2) - flux(i-1/2)
             dFlux = (1./deltaX)*(cshift(uFlux,1,2) - uFlux)
         end subroutine
 end module sweepFunc

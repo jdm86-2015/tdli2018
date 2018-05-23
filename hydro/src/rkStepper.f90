@@ -34,7 +34,7 @@ module rkStepper
             call sweep(uPrim,dFlux,uDim,xDim,deltaX)
 
             ! Take a time step
-            uConsP = uCons + deltaT*dFlux
+            uConsP = uCons - deltaT*dFlux
 
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! THIS WILL OVERWRITE UPRIM AT THIS POINT.
             ! Populate the primary variables for this time step
@@ -47,9 +47,10 @@ module rkStepper
             call sweep(uPrim,dFlux,uDim,xDim,deltaX)
 
             ! Take the final time step.
-            uConsNext = 0.5*(uCons + uConsP + deltaT*dFlux)
+            uConsNext = 0.5*(uCons + uConsP - deltaT*dFlux)
 
             ! Write the solution into uPrim
+!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! THIS WILL OVERWRITE UPRIM AT THIS POINT.
             call prim_calc(uPrim,uConsNext,uDim,xDim)
 
             ! calculate the equation of state for the output primative variables.
