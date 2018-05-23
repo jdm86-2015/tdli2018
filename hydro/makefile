@@ -12,7 +12,13 @@ SRCFILES := ./src/boundary.f90 \
 			./src/primatives.f90 \
 			./src/reconstructor.f90 \
 			./src/riemann.f90 \
-			./src/sweepFunc.f90
+			./src/sweepFunc.f90 \
+			./src/timeStepCalc.f90 \
+			./src/rkStepper.f90 \
+			./src/setupGrid.f90 \
+			./src/setSod.f90 \
+			./src/output.f90 \
+			./src/hydroDriver.f90 \
 
 # specify the objects
 OBJFILES := $(patsubst %.f90,%.o,$(SRCFILES))

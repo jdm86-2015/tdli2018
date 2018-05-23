@@ -1,4 +1,5 @@
 program test
+    ! Imports
     use primatives, only:prim_calc
     use conservedVars, only:cons_calc
     use boundary, only:boundaries
@@ -6,7 +7,13 @@ program test
     use reconstructor, only:reconstruct
     use riemann, only:riemannSolver
     use sweepFunc, only:sweep
+    use timeStepCalc, only:timeStep
+    use rkStepper, only:rkStep
+    use setupGrid, only:gridValues
+    use setSod, only:sodIC
+
     implicit none
+
     integer, parameter :: uDim = 7
     integer, parameter :: xDim = 3
     integer, parameter :: uCDim = 5
@@ -19,13 +26,17 @@ program test
     real, dimension(uCDim,-1:xDim+2) :: uCons
     real, dimension(uCDim,-1:xDim+2) :: uFlux
 
-    real :: dummy
+    real, dimension(xDim) :: xAxis
 
-    real, parameter :: deltaX = 0.1
+    real :: dummy
+    real :: deltaT
+    real :: deltaX
+
     real, parameter :: gam = 5.0/3.0
 
     print*,'Test program running...'
 
+    deltaX = 0.1
 
     ! ********************** CONSERVED TEST ********************** 
     testFlag = 0
@@ -92,9 +103,15 @@ program test
     call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
 
     dummy = 5
-    ! print*,uPrim(1,:)
-    ! print*,uEdgeR(1,:)
-    ! print*,uEdgeL(1,:)
+    print*,'uPrim(1,:): '
+    print*,uPrim(1,:)
+
+    print*,'uEdgeR(1,:): '
+    print*,uEdgeR(1,:)
+
+    print*,'uEdgeL(1,:): '
+    print*,uEdgeL(1,:)
+
     if(abs(uEdgeR(1,2) - dummy) < 1.0e-14) then
         print*,'Right Edge OK'
     else    
@@ -152,6 +169,60 @@ program test
     else    
         print*,'Sweep failed'
     end if
+
+    ! ********************** SWEEP TEST ********************** 
+
+    print*,'Testing time step....'
+
+    dummy =  0.1/7.0
+    call timeStep(uPrim, uDim, xDim, deltaX, deltaT, 1.0)
+    if(abs(deltaT - dummy) < 1.0e-14) then
+        print*,'OK'
+    else    
+        print*,'Time step failed'
+    end if
+
+    ! ********************** SWEEP TEST ********************** 
+
+    print*,'Testing rk step with constant variables....'
+
+    dummy = 3.0 
+    call rkstep(uPrim,uDim,xDim,deltaT,deltaX)
+    if(abs(uPrim(1,3) - dummy) < 1.0e-14) then
+        print*,'OK'
+    else    
+        print*,'Time step failed'
+    end if
+
+    ! ********************** GRID TEST ********************** 
+
+    print*,'Testing grid values....'
+
+    dummy = 1.0/3.0
+    call gridValues(xAxis,1.0,xDim,deltaX)
+    print*,xAxis
+    if(abs(deltaX - dummy) < 1.0e-14) then
+        print*,'OK'
+    else    
+        print*,'Time step failed'
+    end if
+
+    ! ********************** SOD TEST ********************** 
+
+    print*,'Testing Sod initial condition setup....'
+
+    uPrim(:,:) = 0.0
+    call sodIC(uPrim,uDim,xDim,1)
+    call eos(uPrim,5.0/3.0,uDim,xDim)
+
+    dummy = 0.1
+    if(abs(uPrim(6,xDim) - dummy) < 1.0e-14) then
+        print*,'OK'
+    else    
+        print*,'Sod initial condition failed'
+    end if
+
+   
 
 
 
