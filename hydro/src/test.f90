@@ -5,6 +5,7 @@ program test
     use equationOfState, only:eos
     use reconstructor, only:reconstruct
     use riemann, only:riemannSolver
+    use sweepFunc, only:sweep
     implicit none
     integer, parameter :: uDim = 7
     integer, parameter :: xDim = 3
@@ -20,6 +21,7 @@ program test
 
     real :: dummy
 
+    real, parameter :: deltaX = 0.1
     real, parameter :: gam = 5.0/3.0
 
     print*,'Test program running...'
@@ -58,7 +60,7 @@ program test
     ! ********************** BOUNDARY TEST ********************** 
 
     print*,'Testing boundary implementation....'
-    call boundaries(uPrim,uCons,uDim,xDim,1)
+    call boundaries(uPrim,uDim,xDim,1)
     if(abs(uPrim(5,-1)-uPrim(5,xDim-1)) < 1.0e-14) then
         print*,'OK'
     else
@@ -86,7 +88,7 @@ program test
     uPrim(1,1:3) = (/ 2.0, 4.0, 6.0 /)
 
     print*,'Testing reconstructor....'
-    call boundaries(uPrim,uCons,uDim,xDim,1)
+    call boundaries(uPrim,uDim,xDim,1)
     call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
 
     dummy = 5
@@ -121,23 +123,37 @@ program test
     uPrim(6,1:3) = (/ 0.9, 0.9, 0.9 /)
     uPrim(7,1:3) = (/ 7.0, 7.0, 7.0 /)
     print*,'Testing Riemann Solver with constant input....'
-    call boundaries(uPrim,uCons,uDim,xDim,1)
+    call boundaries(uPrim,uDim,xDim,1)
     ! call eos(uPrim,gam,uDim,xDim)
     call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
     call riemannSolver(uPrim,uFlux,uDim,xDim)
 
+    print*,'uPrim(1,:): '
     print*,uPrim(1,:)
+    print*,'uEdgeR(1,:): '
     print*,uEdgeR(1,:)
+    print*,'uEdgeL(1,:): '
     print*,uEdgeL(1,:)
+    print*,'uFlux(1,:): '
     print*,uFlux(1,:)
+    print*,'uFlux(2,:): '
     print*,uFlux(2,:)
+    print*,'uFlux(5,:): '
     print*,uFlux(5,:)
 
-    dummy = 7.0
+    ! ********************** SWEEP TEST ********************** 
+
+    print*,'Testing Sweep with constant input....'
+
+    dummy = 0.0
+    call sweep(uPrim,uFlux,uDim,xDim,deltaX)    
     if(abs(uFlux(1,2) - dummy) < 1.0e-14) then
         print*,'OK'
     else    
-        print*,'Riemann Fluxes failed'
+        print*,'Sweep failed'
     end if
+
+
+
 
 end program test
