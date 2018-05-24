@@ -37,7 +37,7 @@ module riemann
             ! Begin Analysis
 
             ! Interpolate the value of the primary variables at cell edges.
-            call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,-1)
+            call reconstruct(uPrim,uEdgeL,uEdgeR,uDim,xDim,1)
 
             ! get the squared velocities
             vSqrR = uEdgeR(2,:)*uEdgeR(2,:) + uEdgeR(3,:)*uEdgeR(3,:) + uEdgeR(4,:)*uEdgeR(4,:)
@@ -72,7 +72,7 @@ module riemann
                     fl = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)*uEdgeR(2,iii-1) + uEdgeR(6,iii-1)
                     fr = uEdgeL(1,iii)*uEdgeL(2,iii)*uEdgeL(2,iii) + uEdgeL(6,iii)
                     uFlux(2,iii) = denom*(lambdaP*fl - lambdaM*fr + &
-                        prod*(uEdgeL(2,iii) - uEdgeR(2,iii-1)))
+                        prod*(uEdgeL(1,iii)*uEdgeL(2,iii) - uEdgeR(1,iii-1)*uEdgeR(2,iii-1)))
                     ! energy
                     fl = ((uEdgeR(5,iii-1) + &
                             0.5*vSqrR(iii-1))*uEdgeR(1,iii-1)*uEdgeR(2,iii-1) + &
@@ -80,7 +80,8 @@ module riemann
                     fr = ((uEdgeL(5,iii) + 0.5*vSqrL(iii))*uEdgeL(1,iii)*uEdgeL(2,iii) + &
                         uEdgeL(6,iii)*uEdgeL(2,iii))
                     uFlux(5,iii) = denom*(lambdaP*fl - lambdaM*fr + &
-                        prod*(uEdgeL(5,iii) - uEdgeR(5,iii-1)))
+                        prod*(uEdgeL(1,iii)*uEdgeL(5,iii) + 0.5*uEdgeL(1,iii)*vSqrL(iii) - &
+                        (uEdgeR(1,iii-1)*uEdgeR(5,iii-1) + 0.5*uEdgeR(1,iii-1)*vSqrR(iii-1))))
                 end if
             end do
             uFlux(:,-1) = uFlux(:,xDim-1)
