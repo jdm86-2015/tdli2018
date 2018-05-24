@@ -15,6 +15,8 @@ module sweepFunc
 
             real, intent(in) :: deltaX
 
+            uFlux = 0.0
+
             ! ensure boundary conditions for uPrim
             call boundaries(uPrim,uDim,xDim,1)
             ! calculate the fluxes by solving the riemann problem.

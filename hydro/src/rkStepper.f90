@@ -21,6 +21,11 @@ module rkStepper
 
             real, parameter :: gamma = 5.0/3.0
 
+            uCons(:,:) = 0.0
+            dFlux(:,:) = 0.0
+            uConsP(:,:) = 0.0
+            uConsNext(:,:) = 0.0
+
             ! Calculate the equation of state
             call eos(uPrim,gamma,uDim,xDim)
 
@@ -49,12 +54,9 @@ module rkStepper
             ! Take the final time step.
             uConsNext = 0.5*(uCons + uConsP - deltaT*dFlux)
 
-            ! Write the solution into uPrim
 !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! THIS WILL OVERWRITE UPRIM AT THIS POINT.
+            ! Write the solution into uPrim
             call prim_calc(uPrim,uConsNext,uDim,xDim)
-
-            ! calculate the equation of state for the output primative variables.
-            call eos(uPrim,gamma,uDim,xDim)
 
         end subroutine
 end module rkStepper

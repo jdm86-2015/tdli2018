@@ -2,7 +2,7 @@
 # compilation flags and compiler
 CXX = gfortran
 INC = -I./include
-WARNINGS = -Wall
+WARNINGS = -Wall -fbounds-check -finit-real=nan -ffpe-trap=invalid,zero,overflow -fbacktrace
 OTHER = -DPPT
 CXXFLAGS = -O3 $(WARNINGS) $(OTHER) #-MMD -MP #-lhdf5 -lhdf5_fortran
 

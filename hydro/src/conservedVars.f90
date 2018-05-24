@@ -13,7 +13,7 @@ module conservedVars
             real, dimension(-1:xDim+2) :: vSqr
 
             ! uPrim == (rho, vx, vy, vz, e, p, cs)
-            ! uCons == (rho, rho*vx, rho*vy, rho*vz, e+0.5*rho*v^2)
+            ! uCons == (rho, rho*vx, rho*vy, rho*vz, rho*e+0.5*rho*v^2)
 
             vSqr = uPrim(2,:)*uPrim(2,:) + uPrim(3,:)*uPrim(3,:) + uPrim(4,:)*uPrim(4,:)
 

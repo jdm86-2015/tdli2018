@@ -28,6 +28,12 @@ module riemann
             real :: lambdaP
             real :: lambdaM
 
+            uEdgeL(:,:) = 0.0
+            uEdgeR(:,:) = 0.0
+
+            vSqrR(:) = 0.0
+            vSqrL(:) = 0.0
+
             ! Begin Analysis
 
             ! Interpolate the value of the primary variables at cell edges.
@@ -44,16 +50,16 @@ module riemann
                 ! Implement fluxes given by the hydrodynamic equations
                 if (lambdaM > 0) then
                     uFlux(1,iii) = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)
-                    uFlux(2,iii) = uEdgeR(1,iii-1)*vSqrR(iii-1) + uEdgeR(6,iii-1)
-                    uFlux(5,iii) = (uEdgeR(5,iii-1) + & 
+                    uFlux(2,iii) = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)*uEdgeR(2,iii-1) + uEdgeR(6,iii-1)
+                    uFlux(5,iii) = ((uEdgeR(5,iii-1) + & 
                         0.5*vSqrR(iii-1))*uEdgeR(1,iii-1)*uEdgeR(2,iii-1) + &
-                        uEdgeR(6,iii-1)*uEdgeR(2,iii-1) 
+                        uEdgeR(6,iii-1)*uEdgeR(2,iii-1))
                 else if (lambdaP < 0) then
                     uFlux(1,iii) = uEdgeL(1,iii)*uEdgeL(2,iii)
-                    uFlux(2,iii) = uEdgeL(1,iii)*vSqrL(iii) + uEdgeL(6,iii)
-                    uFlux(5,iii) = (uEdgeL(5,iii) + &
+                    uFlux(2,iii) = uEdgeL(1,iii)*uEdgeL(2,iii)*uEdgeL(2,iii) + uEdgeL(6,iii)
+                    uFlux(5,iii) = ((uEdgeL(5,iii) + &
                         0.5*vSqrL(iii))*uEdgeL(1,iii)*uEdgeL(2,iii) + &
-                        uEdgeL(6,iii)*uEdgeL(2,iii)               
+                        uEdgeL(6,iii)*uEdgeL(2,iii))            
                 else
                     denom = 1.0/(lambdaP - lambdaM)
                     prod = lambdaP*lambdaM
@@ -63,18 +69,18 @@ module riemann
                     uFlux(1,iii) = denom*(lambdaP*fl - lambdaM*fr + &
                         prod*(uEdgeL(1,iii) - uEdgeR(1,iii-1)))
                     ! momentum
-                    fl = uEdgeR(1,iii-1)*vSqrR(iii-1) + uEdgeR(6,iii-1)
-                    fr = uEdgeL(1,iii)*vSqrL(iii) + uEdgeL(6,iii)
+                    fl = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)*uEdgeR(2,iii-1) + uEdgeR(6,iii-1)
+                    fr = uEdgeL(1,iii)*uEdgeL(2,iii)*uEdgeL(2,iii) + uEdgeL(6,iii)
                     uFlux(2,iii) = denom*(lambdaP*fl - lambdaM*fr + &
                         prod*(uEdgeL(2,iii) - uEdgeR(2,iii-1)))
                     ! energy
-                    fl = (uEdgeR(5,iii-1) + &
+                    fl = ((uEdgeR(5,iii-1) + &
                             0.5*vSqrR(iii-1))*uEdgeR(1,iii-1)*uEdgeR(2,iii-1) + &
-                            uEdgeR(6,iii-1)*uEdgeR(2,iii-1)        
-                    fr = (uEdgeL(5,iii) + 0.5*vSqrL(iii))*uEdgeL(1,iii)*uEdgeL(2,iii) + &
-                        uEdgeL(6,iii)*uEdgeL(2,iii) 
+                            uEdgeR(6,iii-1)*uEdgeR(2,iii-1))
+                    fr = ((uEdgeL(5,iii) + 0.5*vSqrL(iii))*uEdgeL(1,iii)*uEdgeL(2,iii) + &
+                        uEdgeL(6,iii)*uEdgeL(2,iii))
                     uFlux(5,iii) = denom*(lambdaP*fl - lambdaM*fr + &
-                        prod*(uEdgeL(1,iii) - uEdgeR(1,iii-1)))
+                        prod*(uEdgeL(5,iii) - uEdgeR(5,iii-1)))
                 end if
             end do
             uFlux(:,-1) = uFlux(:,xDim-1)
@@ -82,12 +88,18 @@ module riemann
             uFlux(:,xDim+1) = uFlux(:,1)
             uFlux(:,xDim+2) = uFlux(:,2)
 
-            print*,'rFlux:'
-            print*,uFlux(1,:)
-            print*,'vFlux:'
-            print*,uFlux(2,:)
-            print*,'eFlux:'
-            print*,uFlux(5,:)
+            ! print*,'uDim: '
+            ! print*, uDim
+            ! print*,'xDim: '
+            ! print*,xDim
+            ! print*,'rFlux:'
+            ! print*,uFlux(1,:)
+            ! print*,'vFlux:'
+            ! print*,uFlux(2,:)
+            ! print*,'eFlux:'
+            ! print*,uFlux(5,:)
+
+            
         end subroutine
 end module riemann
         

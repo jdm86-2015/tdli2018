@@ -22,7 +22,7 @@ module reconstructor
             if ( present(method) ) then
                 method_ = method
             else
-                method_ = 1
+                method_ = 0
             end if
 
             select case (method_)

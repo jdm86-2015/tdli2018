@@ -24,11 +24,13 @@ module hydroDriverRoutine
             real :: timeOut
             real :: safety
             real :: outFreq
+            real :: gamma
 
             safety = 0.7
             outFreq = 0.1
             timeOut = time + outFreq
             stepNumber = 0
+            gamma = 5.0/3.0
 
             time = 0.0
 
@@ -37,27 +39,27 @@ module hydroDriverRoutine
             ! populate the initial condition
             call sodIC(uPrim,uDim,xDim,-1)
             ! populate the pressure and sound speed
-            call eos(uPrim,5.0/3.0,uDim,xDim)
+            call eos(uPrim,gamma,uDim,xDim)
             ! determine the initial time step
             call timeStep(uPrim,uDim,xDim,deltaX,deltaT,safety)
-            print*,deltaT
+            ! write the initial condition to disk
             call write(uPrim,xAxis,uDim,xDim,stepNumber,time)
 
-            do while ((stepNumber < 2) .OR. deltaT < 1e-10)
+            do while ((time < tMax) .OR. deltaT < 1e-10)
 
                 stepNumber = stepNumber + 1
                 call timeStep(uPrim,uDim,xDim,deltaX,deltaT,safety)
                 call rkStep(uPrim,uDim,xDim,deltaT,deltaX)
                 time = time + deltaT
                 call write(uPrim,xAxis,uDim,xDim,stepNumber,time)
-                ! if(time > timeOut) then
-                    ! call write(uPrim,xAxis,uDim,xDim,stepNumber,time)
-                    ! timeOut = time + outFreq
-                ! end if
-                ! if(deltaT < 1e-10) then
-                    ! print*,"Underflow...."
-                ! end if
-                print*,time
+                if(time > timeOut) then
+                    call write(uPrim,xAxis,uDim,xDim,stepNumber,time)
+                    timeOut = time + outFreq
+                end if
+                if(deltaT < 1e-10) then
+                    print*,"Underflow...."
+                end if
+                ! print*,time
             end do
         end subroutine hydroDriver
 end module hydroDriverRoutine
