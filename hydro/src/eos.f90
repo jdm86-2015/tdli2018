@@ -8,7 +8,7 @@ module equationOfState
             real, intent(in) :: gamma
             real, intent(inout), dimension(uDim,-1:xDim+2) :: uPrim
 
-            ! uPrim(6,:) = (gamma-1.0)*uPrim(1,:)*uPrim(5,:)
-            uPrim(7,:) = sqrt((gamma-1.0)*uPrim(5,:))
+            uPrim(6,:) = (gamma-1.0)*uPrim(1,:)*uPrim(5,:)
+            uPrim(7,:) = sqrt(gamma*(gamma-1.0)*uPrim(5,:))
         end subroutine
 end module equationOfState

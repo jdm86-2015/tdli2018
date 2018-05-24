@@ -43,7 +43,7 @@ module riemann
             vSqrR = uEdgeR(2,:)*uEdgeR(2,:) + uEdgeR(3,:)*uEdgeR(3,:) + uEdgeR(4,:)*uEdgeR(4,:)
             vSqrL = uEdgeL(2,:)*uEdgeL(2,:) + uEdgeL(3,:)*uEdgeL(3,:) + uEdgeL(4,:)*uEdgeL(4,:)
 
-            do iii=1,xDim
+            do iii=0,xDim+1
                 ! calculate the extreme characteristic speeds
                 lambdaM = min(uEdgeL(2,iii) - uEdgeL(7,iii),uEdgeR(2,iii-1) - uEdgeR(7,iii-1))
                 lambdaP = max(uEdgeL(2,iii) + uEdgeL(7,iii),uEdgeR(2,iii-1) + uEdgeR(7,iii-1))
@@ -84,8 +84,8 @@ module riemann
                 end if
             end do
             uFlux(:,-1) = uFlux(:,xDim-1)
-            uFlux(:,0) = uFlux(:,xDim)
-            uFlux(:,xDim+1) = uFlux(:,1)
+            ! uFlux(:,0) = uFlux(:,xDim)
+            ! uFlux(:,xDim+1) = uFlux(:,1)
             uFlux(:,xDim+2) = uFlux(:,2)
 
             ! print*,'uDim: '

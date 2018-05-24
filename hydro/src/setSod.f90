@@ -17,7 +17,7 @@ module setSod
                     uPrim(5,((xDim/2)+1):xDim) = 0.1/((-1.0 + 5.0/3.0)*0.125)
                 case default
                     ! A contact discontinuity
-                    uPrim(2,:) = 0.5
+                    uPrim(2,:) = 0.0
                     uPrim(3,:) = 0.0
                     uPrim(4,:) = 0.0
                     uPrim(5,:) = 0.5
