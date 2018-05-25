@@ -23,7 +23,6 @@ module riemann
             real :: denom
             real :: prod
 
-            ! Used in HLLC for star states.
             real :: ps
             real :: rl
             real :: rr
@@ -33,15 +32,14 @@ module riemann
             real :: rvr
             real :: rwl
             real :: rwr
-            real :: rel
-            real :: rer
-
             real :: ul
             real :: ur
             real :: vl
             real :: vr
             real :: wl
             real :: wr
+            real :: rel
+            real :: rer
 
             real, dimension(-1:xDim+2) :: vSqrR
             real, dimension(-1:xDim+2) :: vSqrL
@@ -49,8 +47,6 @@ module riemann
             real :: lambdaP
             real :: lambdaM
             real :: lambdaS
-
-            real :: dummy
 
             lambdaP = 0.0
             lambdaM = 0.0
@@ -71,17 +67,15 @@ module riemann
             rvr = 0.0
             rwl = 0.0
             rwr = 0.0
-            rel = 0.0
-            rer = 0.0
-
             ul = 0.0
             ur = 0.0
             vl = 0.0
             vr = 0.0
             wl = 0.0
             wr = 0.0
+            rel = 0.0
+            rer = 0.0
 
-            dummy = 0.0
 
             ! Begin Analysis
 
@@ -95,73 +89,41 @@ module riemann
             select case (method)
             case (1)
                 ! HLLC Solver
+#ifdef NOTHING
                 do iii=1,xDim
                     ! calculate the extreme characteristic speeds
                     lambdaM = min(uEdgeL(2,iii) - uEdgeL(7,iii),uEdgeR(2,iii-1) - uEdgeR(7,iii-1))
                     lambdaP = max(uEdgeL(2,iii) + uEdgeL(7,iii),uEdgeR(2,iii-1) + uEdgeR(7,iii-1))
-                    denom =  uEdgeR(1,iii-1)*(lambdaM - uEdgeR(2,iii-1)) - &
-                            uEdgeL(1,iii)*(lambdaP - uEdgeL(2,iii))
-                    lambdaS = (1./denom)*(uEdgeL(6,iii) - uEdgeR(6,iii-1) + &
-                        uEdgeR(2,iii-1)*uEdgeR(1,iii-1)*(lambdaM - uEdgeR(2,iii-1)) - &
-                        uEdgeL(2,iii)*uEdgeL(1,iii)*(lambdaP - uEdgeL(2,iii)))
                     ! Implement fluxes given by the hydrodynamic equations
-                    if (lambdaM > 0) then
-                        uFlux(1,iii) = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)
-                        uFlux(2,iii) = uEdgeR(1,iii-1)*uEdgeR(2,iii-1)*uEdgeR(2,iii-1) + uEdgeR(6,iii-1)
-                        uFlux(5,iii) = ((uEdgeR(5,iii-1) + & 
-                            0.5*vSqrR(iii-1))*uEdgeR(1,iii-1)*uEdgeR(2,iii-1) + &
-                            uEdgeR(6,iii-1)*uEdgeR(2,iii-1))
-                    else if (lambdaS > 0) then
-                        ps = uEdgeL(6,iii) + uEdgeL(1,iii)*(lambdaS-uEdgeL(2,iii))*(lambdaP - & 
-                            uEdgeL(2,iii))
+                    denom =  uEdgeR(1,iii-1)*(lambdaM - uEdgeR(2,iii-1)) - &
+                                uEdgeL(1,iii)*(lambdaP - uEdgeL(2,iii))
+                    lambdaS = (1./denom)*(uEdgeR(6,iii-1) - uEdgeL(6,iii) + &
+                                uEdgeR(2,iii-1)*uEdgeR(1,iii-1)*(lambdaM - uEdgeR(2,iii-1)) - &
+                                uEdgeL(2,iii)*uEdgeL(1,iii)*(lambdaM - uEdgeL(2,iii)))
 
-                        denom = 1./(lambdaM - lambdaS)
-                        rl = denom*uEdgeR(1,iii-1)*(lambdaM-uEdgeR(2,iii-1))
-                        rul = denom*(uEdgeR(1,iii-1)*uEdgeR(2,iii-1)*(lambdaM - uEdgeR(2,iii-1)) + &
-                            ps - uEdgeR(6,iii-1))
-                        rvl = denom*(uEdgeR(1,iii-1)*uEdgeR(3,iii-1))*(lambdaM - uEdgeR(2,iii-1)) 
-                        rwl = denom*(uEdgeR(1,iii-1)*uEdgeR(4,iii-1))*(lambdaM - uEdgeR(2,iii-1))
+                    ps = uEdgeL(6,iii) + uEdgeL(1,iii)*(lambdaS-uEdge(2,iii))*(lambdaP - uEdge(2,iii))
 
-                        dummy = uEdgeR(5,iii-1) + 0.5*vSqrR(iii-1)
-                        rel = denom*(uEdgeR(1,iii-1)*dummy*(lambdaM - uEdgeR(2,iii-1)) + &
-                                ps*lambdaS - uEdgeR(6,iii-1)*uEdgeR(2,iii-1))
+                    rl = uEdgeR(1,iii-1)*(lambdaP-uEdgeR(2,iii-1))/(lambdaP - lambdaS)
 
-                        ul = rul/rl
-                        vl = rvl/rl
-                        wl = rwl/rl
+                    rr = uEdgeL(1,iii)*(lambdaP-uEdgeL(2,iii))/(lambdaP - lambdaS)
 
-                        uFlux(1,iii) = rul
-                        uFlux(2,iii) = ps + rul*ul
-                        uFlux(5,iii) = (rel + ps)*ul
-                    else if(lambdaP > 0) then
-                        ps = uEdgeL(6,iii) + uEdgeL(1,iii)*(lambdaS-uEdgeL(2,iii))*(lambdaP - & 
-                            uEdgeL(2,iii))
+                    rul = (uEdgeR(1,iii-1)*uEdgeR(2,iii-1)*(lambdaM - uEdgeR(2,iii-1)) + &
+                        ps - uEdgeR(6,iii-1))/(lambdaM - lambdaS)
+                    rur = (uEdgeL(1,iii)*uEdgeL(2,iii)*(lambdaP - uEdgeL(2,iii)) + &
+                        ps - uEdgeL(6,iii))/(lambdaP - lambdaS)
 
-                        denom = 1./(lambdaP - lambdaS)
-                        rr = denom*uEdgeL(1,iii)*(lambdaP-uEdgeL(2,iii))
-                        rur = denom*(uEdgeL(1,iii)*uEdgeL(2,iii)*(lambdaP - uEdgeL(2,iii)) + &
-                            ps - uEdgeL(6,iii))
-                        rvr = denom*(uEdgeL(1,iii)*uEdgeL(3,iii))*(lambdaP - uEdgeL(2,iii))
-                        rwr = denom*(uEdgeL(1,iii)*uEdgeL(4,iii))*(lambdaP - uEdgeL(2,iii))
+                    rvl = (uEdgeR(1,iii-1)*uEdgeR(3,iii-1))*((lambdaM - uEdgeR(3,iii-1)) / &
+                            (lambdaM - lambdaS))
+                    rvr = (uEdgeL(1,iii)*uEdgeL(3,iii))*((lambdaP - uEdgeL(3,iii)) / &
+                            (lambdaP - lambdaS))
 
-                        dummy = uEdgeL(5,iii) + 0.5*vSqrL(iii)
-                        rer = denom*(uEdgeL(1,iii)*dummy*(lambdaP - uEdgeL(2,iii)) + &
-                                ps*lambdaS - uEdgeL(6,iii)*uEdgeL(2,iii))
-                        ur = rur/rr
-                        vr = rvr/rr
-                        wr = rwr/rr
+                    rwl = (uEdgeR(1,iii-1)*uEdgeR(4,iii-1))*((lambdaM - uEdgeR(4,iii-1)) / &
+                            (lambdaM - lambdaS))
+                    rvr = (uEdgeL(1,iii)*uEdgeL(3,iii))*((lambdaP - uEdgeL(3,iii)) / &
+                            (lambdaP - lambdaS))
 
-                        uFlux(1,iii) = rur
-                        uFlux(2,iii) = ps + rur*ur
-                        uFlux(5,iii) = (rer + ps)*ur
-                    else 
-                        uFlux(1,iii) = uEdgeL(1,iii)*uEdgeL(2,iii)
-                        uFlux(2,iii) = uEdgeL(1,iii)*uEdgeL(2,iii)*uEdgeL(2,iii) + uEdgeL(6,iii)
-                        uFlux(5,iii) = ((uEdgeL(5,iii) + &
-                            0.5*vSqrL(iii))*uEdgeL(1,iii)*uEdgeL(2,iii) + &
-                            uEdgeL(6,iii)*uEdgeL(2,iii))       
-                    end if
                 end do
+#endif
             case default
                 ! HLLE solver
                 do iii=1,xDim

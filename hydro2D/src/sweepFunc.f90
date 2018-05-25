@@ -20,7 +20,7 @@ module sweepFunc
             ! ensure boundary conditions for uPrim
             call boundaries(uPrim,uDim,xDim,1)
             ! calculate the fluxes by solving the riemann problem.
-            call riemannSolver(uPrim,uFlux,uDim,xDim,1)
+            call riemannSolver(uPrim,uFlux,uDim,xDim,-1)
             ! Enforce the boundary condition on the fluxes.
             call boundaries(uFlux,uDim-2,xDim,1)
 
